@@ -1,35 +1,293 @@
+---
 kind: pipeline
-name: default
-type: docker
+name: testing
+
+platform:
+  os: linux
+  arch: amd64
 
 steps:
-  - name: test
-    image: golang
-    volumes:
-      - name: deps
-        path: /go
-    commands:
-      - go test
+- name: test
+  pull: always
+  image: golang
+  commands:
+  - "go test "
+  environment:
+    GO111MODULE: on
 
-  - name: build
-    image: golang
-    volumes:
-      - name: deps
-        path: /go
-    commands:
-      - go build
+trigger:
+  branch:
+  - master
 
-  - name: publish
-    image: plugins/github-release
-    settings:
-      api_key: 
-        from_secret: GITHUB_API_KEY
-      files: dist/*
-      checksum:
-        - sha256
-    when:
-      event: tag
+---
+kind: pipeline
+name: linux-amd64
 
-volumes:
-  - name: deps
-    temp: { }
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: build-push
+  pull: always
+  image: golang
+  commands:
+  - go build -v -ldflags "-X main.build=${DRONE_BUILD_NUMBER}" -a -o release/linux/amd64/drone-discord
+  environment:
+    CGO_ENABLED: 0
+    GO111MODULE: on
+  when:
+    event:
+    - push
+    - pull_request
+
+- name: build-tag
+  pull: always
+  image: golang
+  commands:
+  - go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}" -a -o release/linux/amd64/drone-discord
+  environment:
+    CGO_ENABLED: 0
+    GO111MODULE: on
+  when:
+    event:
+    - tag
+
+- name: executable
+  pull: always
+  image: golang
+  commands:
+  - ./release/linux/amd64/drone-discord –help
+
+- name: dryrun
+  pull: always
+  image: plugins/docker:linux-amd64
+  settings:
+    dockerfile: docker/Dockerfile.linux.amd64
+    dry_run: true
+    password:
+      from_secret: docker_password
+    repo: appleboy/drone-discord
+    tags: linux-amd64
+    username:
+      from_secret: docker_username
+  when:
+    event:
+    - pull_request
+
+- name: publish
+  pull: always
+  image: plugins/docker:linux-amd64
+  settings:
+    auto_tag: true
+    auto_tag_suffix: linux-amd64
+    dockerfile: docker/Dockerfile.linux.amd64
+    password:
+      from_secret: docker_password
+    repo: appleboy/drone-discord
+    username:
+      from_secret: docker_username
+  when:
+    event:
+    - push
+    - tag
+
+trigger:
+  branch:
+  - master
+
+depends_on:
+- testing
+
+---
+kind: pipeline
+name: linux-arm64
+
+platform:
+  os: linux
+  arch: arm64
+
+steps:
+- name: build-push
+  pull: always
+  image: golang
+  commands:
+  - go build -v -ldflags "-X main.build=${DRONE_BUILD_NUMBER}" -a -o release/linux/arm64/drone-discord
+  environment:
+    CGO_ENABLED: 0
+    GO111MODULE: on
+  when:
+    event:
+    - push
+    - pull_request
+
+- name: build-tag
+  pull: always
+  image: golang
+  commands:
+  - go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}" -a -o release/linux/arm64/drone-discord
+  environment:
+    CGO_ENABLED: 0
+    GO111MODULE: on
+  when:
+    event:
+    - tag
+
+- name: executable
+  pull: always
+  image: golang
+  commands:
+  - ./release/linux/arm64/drone-discord –help
+
+- name: dryrun
+  pull: always
+  image: plugins/docker:linux-arm64
+  settings:
+    dockerfile: docker/Dockerfile.linux.arm64
+    dry_run: true
+    password:
+      from_secret: docker_password
+    repo: appleboy/drone-discord
+    tags: linux-arm64
+    username:
+      from_secret: docker_username
+  when:
+    event:
+    - pull_request
+
+- name: publish
+  pull: always
+  image: plugins/docker:linux-arm64
+  settings:
+    auto_tag: true
+    auto_tag_suffix: linux-arm64
+    dockerfile: docker/Dockerfile.linux.arm64
+    password:
+      from_secret: docker_password
+    repo: appleboy/drone-discord
+    username:
+      from_secret: docker_username
+  when:
+    event:
+    - push
+    - tag
+
+trigger:
+  branch:
+  - master
+
+depends_on:
+- testing
+
+---
+kind: pipeline
+name: linux-arm
+
+platform:
+  os: linux
+  arch: arm
+
+steps:
+- name: build-push
+  pull: always
+  image: golang
+  commands:
+  - go build -v -ldflags "-X main.build=${DRONE_BUILD_NUMBER}" -a -o release/linux/arm/drone-discord
+  environment:
+    CGO_ENABLED: 0
+    GO111MODULE: on
+  when:
+    event:
+    - push
+    - pull_request
+
+- name: build-tag
+  pull: always
+  image: golang
+  commands:
+  - go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}" -a -o release/linux/arm/drone-discord
+  environment:
+    CGO_ENABLED: 0
+    GO111MODULE: on
+  when:
+    event:
+    - tag
+
+- name: executable
+  pull: always
+  image: golang
+  commands:
+  - ./release/linux/arm/drone-discord –help
+
+- name: dryrun
+  pull: always
+  image: plugins/docker:linux-arm
+  settings:
+    dockerfile: docker/Dockerfile.linux.arm
+    dry_run: true
+    password:
+      from_secret: docker_password
+    repo: appleboy/drone-discord
+    tags: linux-arm
+    username:
+      from_secret: docker_username
+  when:
+    event:
+    - pull_request
+
+- name: publish
+  pull: always
+  image: plugins/docker:linux-arm
+  settings:
+    auto_tag: true
+    auto_tag_suffix: linux-arm
+    dockerfile: docker/Dockerfile.linux.arm
+    password:
+      from_secret: docker_password
+    repo: appleboy/drone-discord
+    username:
+      from_secret: docker_username
+  when:
+    event:
+    - push
+    - tag
+
+trigger:
+  branch:
+  - master
+
+depends_on:
+- testing
+
+---
+kind: pipeline
+name: notifications
+
+platform:
+  os: linux
+  arch: amd64
+
+clone:
+  disable: true
+
+steps:
+- name: microbadger
+  pull: always
+  image: plugins/webhook:1
+  settings:
+    url:
+      from_secret: microbadger_url
+
+trigger:
+  branch:
+  - master
+  event:
+  - push
+  - tag
+
+depends_on:
+- linux-amd64
+- linux-arm64
+- linux-arm
+
+...
