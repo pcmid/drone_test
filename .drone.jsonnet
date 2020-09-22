@@ -14,7 +14,7 @@ local PipelineTesting = {
         GO111MODULE: "on",
       },
       commands: [
-        "go test ",
+        "go test",
       ],
     },
   ],
@@ -31,22 +31,7 @@ local PipelineBuild(os="linux", arch="amd64") = {
   },
   steps: [
     {
-      name: "build-push",
-      image: "golang",
-      pull: "always",
-      environment: {
-        CGO_ENABLED: "0",
-        GO111MODULE: "on",
-      },
-      commands: [
-        "go build -v -ldflags \"-X main.build=${DRONE_BUILD_NUMBER}\" -a -o release/" + os + "/" + arch + "/drone-discord",
-      ],
-      when: {
-        event: [ "push", "pull_request" ],
-      },
-    },
-    {
-      name: "build-tag",
+      name: "build",
       image: "golang",
       pull: "always",
       environment: {
@@ -58,30 +43,6 @@ local PipelineBuild(os="linux", arch="amd64") = {
       ],
       when: {
         event: [ "tag" ],
-      },
-    },
-    {
-      name: "executable",
-      image: "golang",
-      pull: "always",
-      commands: [
-        "./release/" + os + "/" + arch + "/drone-discord –help",
-      ],
-    },
-    {
-      name: "dryrun",
-      image: "plugins/docker:" + os + "-" + arch,
-      pull: "always",
-      settings: {
-        dry_run: true,
-        tags: os + "-" + arch,
-        dockerfile: "docker/Dockerfile." + os + "." + arch,
-        repo: "appleboy/drone-discord",
-        username: { "from_secret": "docker_username" },
-        password: { "from_secret": "docker_password" },
-      },
-      when: {
-        event: [ "pull_request" ],
       },
     },
     {
@@ -97,7 +58,7 @@ local PipelineBuild(os="linux", arch="amd64") = {
         password: { "from_secret": "docker_password" },
       },
       when: {
-        event: [ "push", "tag" ],
+        event: [ "tag" ],
       },
     },
   ],
@@ -108,40 +69,9 @@ local PipelineBuild(os="linux", arch="amd64") = {
     branch: [ "master" ],
   },
 };
-local PipelineNotifications = {
-  kind: "pipeline",
-  name: "notifications",
-  platform: {
-    os: "linux",
-    arch: "amd64",
-  },
-  clone: {
-    disable: true,
-  },
-  steps: [
-    {
-      name: "microbadger",
-      image: "plugins/webhook:1",
-      pull: "always",
-      settings: {
-        url: { "from_secret": "microbadger_url" },
-      },
-    },
-  ],
-  depends_on: [
-    "linux-amd64",
-    "linux-arm64",
-    "linux-arm",
-  ],
-  trigger: {
-    branch: [ "master" ],
-    event: [ "push", "tag" ],
-  },
-};
 [
   PipelineTesting,
   PipelineBuild("linux", "amd64"),
   PipelineBuild("linux", "arm64"),
   PipelineBuild("linux", "arm"),
-  PipelineNotifications,
 ]
