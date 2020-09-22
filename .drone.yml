@@ -32,7 +32,7 @@ steps:
   pull: always
   image: golang
   commands:
-  - GOOS=linux GOARCH=amd64 go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:8} -X main.build=${DRONE_BUILD_NUMBER}" -a -o release/${DRONE_REPO_NAME}_linux_amd64
+  - GOOS=linux GOARCH=amd64 go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:8} -X main.build=${DRONE_BUILD_NUMBER}" -a -o build/${DRONE_REPO_NAME}_linux_amd64
   environment:
     CGO_ENABLED: 0
     GO111MODULE: on
@@ -50,8 +50,6 @@ steps:
     GO111MODULE: on
   when:
     event:
-    - push
-    - pull_request
     - tag
 
 - name: release
@@ -100,7 +98,7 @@ steps:
   pull: always
   image: golang
   commands:
-  - GOOS=linux GOARCH=arm64 go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:8} -X main.build=${DRONE_BUILD_NUMBER}" -a -o release/${DRONE_REPO_NAME}_linux_arm64
+  - GOOS=linux GOARCH=arm64 go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:8} -X main.build=${DRONE_BUILD_NUMBER}" -a -o build/${DRONE_REPO_NAME}_linux_arm64
   environment:
     CGO_ENABLED: 0
     GO111MODULE: on
@@ -118,8 +116,6 @@ steps:
     GO111MODULE: on
   when:
     event:
-    - push
-    - pull_request
     - tag
 
 - name: release
@@ -168,7 +164,7 @@ steps:
   pull: always
   image: golang
   commands:
-  - GOOS=linux GOARCH=arm go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:8} -X main.build=${DRONE_BUILD_NUMBER}" -a -o release/${DRONE_REPO_NAME}_linux_arm
+  - GOOS=linux GOARCH=arm go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:8} -X main.build=${DRONE_BUILD_NUMBER}" -a -o build/${DRONE_REPO_NAME}_linux_arm
   environment:
     CGO_ENABLED: 0
     GO111MODULE: on
@@ -186,8 +182,6 @@ steps:
     GO111MODULE: on
   when:
     event:
-    - push
-    - pull_request
     - tag
 
 - name: release
