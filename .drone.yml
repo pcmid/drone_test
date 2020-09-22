@@ -28,17 +28,40 @@ platform:
   arch: amd64
 
 steps:
+- name: build-push
+  pull: always
+  image: golang
+  commands:
+  - "GOOS=linux GOARCH=amd64 go build -v -ldflags \"-X main.version=${DRONE_COMMIT_SHA:0:8} -X main.build=${DRONE_BUILD_NUMBER}\" -a \\\n         -o release/${DRONE_REPO_NAME}_linux_amd64"
+  environment:
+    CGO_ENABLED: 0
+    GO111MODULE: on
+  when:
+    event:
+      exclude:
+      - tag
+
 - name: build
   pull: always
   image: golang
   commands:
-  - GOOS=linux GOARCH=amd64 go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}" -a -o release/linux/amd64/drone-discord
+  - "GOOS=linux GOARCH=amd64 go build -v -ldflags \"-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}\" -a \\\n         -o release/${DRONE_REPO_NAME}_linux_amd64"
   environment:
     GO111MODULE: on
   when:
     event:
     - push
     - pull_request
+    - tag
+
+- name: release
+  image: plugins/github-release
+  settings:
+    api_key:
+      from_secret: GITHUB_API_TOKEN
+    files: release/*
+  when:
+    event:
     - tag
 
 - name: publish
@@ -49,10 +72,10 @@ steps:
     auto_tag_suffix: linux-amd64
     dockerfile: docker/Dockerfile.linux.amd64
     password:
-      from_secret: docker_password
-    repo: appleboy/drone-discord
+      from_secret: DOCKER_PASSWORD
+    repo: ${DRONE_REPO}
     username:
-      from_secret: docker_username
+      from_secret: DOCKER_USERNAME
   when:
     event:
     - tag
@@ -73,17 +96,40 @@ platform:
   arch: amd64
 
 steps:
+- name: build-push
+  pull: always
+  image: golang
+  commands:
+  - "GOOS=linux GOARCH=arm64 go build -v -ldflags \"-X main.version=${DRONE_COMMIT_SHA:0:8} -X main.build=${DRONE_BUILD_NUMBER}\" -a \\\n         -o release/${DRONE_REPO_NAME}_linux_arm64"
+  environment:
+    CGO_ENABLED: 0
+    GO111MODULE: on
+  when:
+    event:
+      exclude:
+      - tag
+
 - name: build
   pull: always
   image: golang
   commands:
-  - GOOS=linux GOARCH=arm64 go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}" -a -o release/linux/arm64/drone-discord
+  - "GOOS=linux GOARCH=arm64 go build -v -ldflags \"-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}\" -a \\\n         -o release/${DRONE_REPO_NAME}_linux_arm64"
   environment:
     GO111MODULE: on
   when:
     event:
     - push
     - pull_request
+    - tag
+
+- name: release
+  image: plugins/github-release
+  settings:
+    api_key:
+      from_secret: GITHUB_API_TOKEN
+    files: release/*
+  when:
+    event:
     - tag
 
 - name: publish
@@ -94,10 +140,10 @@ steps:
     auto_tag_suffix: linux-arm64
     dockerfile: docker/Dockerfile.linux.arm64
     password:
-      from_secret: docker_password
-    repo: appleboy/drone-discord
+      from_secret: DOCKER_PASSWORD
+    repo: ${DRONE_REPO}
     username:
-      from_secret: docker_username
+      from_secret: DOCKER_USERNAME
   when:
     event:
     - tag
@@ -118,17 +164,40 @@ platform:
   arch: amd64
 
 steps:
+- name: build-push
+  pull: always
+  image: golang
+  commands:
+  - "GOOS=linux GOARCH=arm go build -v -ldflags \"-X main.version=${DRONE_COMMIT_SHA:0:8} -X main.build=${DRONE_BUILD_NUMBER}\" -a \\\n         -o release/${DRONE_REPO_NAME}_linux_arm"
+  environment:
+    CGO_ENABLED: 0
+    GO111MODULE: on
+  when:
+    event:
+      exclude:
+      - tag
+
 - name: build
   pull: always
   image: golang
   commands:
-  - GOOS=linux GOARCH=arm go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}" -a -o release/linux/arm/drone-discord
+  - "GOOS=linux GOARCH=arm go build -v -ldflags \"-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}\" -a \\\n         -o release/${DRONE_REPO_NAME}_linux_arm"
   environment:
     GO111MODULE: on
   when:
     event:
     - push
     - pull_request
+    - tag
+
+- name: release
+  image: plugins/github-release
+  settings:
+    api_key:
+      from_secret: GITHUB_API_TOKEN
+    files: release/*
+  when:
+    event:
     - tag
 
 - name: publish
@@ -139,10 +208,10 @@ steps:
     auto_tag_suffix: linux-arm
     dockerfile: docker/Dockerfile.linux.arm
     password:
-      from_secret: docker_password
-    repo: appleboy/drone-discord
+      from_secret: DOCKER_PASSWORD
+    repo: ${DRONE_REPO}
     username:
-      from_secret: docker_username
+      from_secret: DOCKER_USERNAME
   when:
     event:
     - tag

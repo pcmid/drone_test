@@ -1,75 +1,105 @@
 local PipelineTesting = {
-  kind: "pipeline",
-  name: "testing",
+  kind: 'pipeline',
+  name: 'testing',
   platform: {
-    os: "linux",
-    arch: "amd64",
+    os: 'linux',
+    arch: 'amd64',
   },
   steps: [
     {
-      name: "test",
-      image: "golang",
-      pull: "always",
+      name: 'test',
+      image: 'golang',
+      pull: 'always',
       environment: {
-        GO111MODULE: "on",
+        GO111MODULE: 'on',
       },
       commands: [
-        "go test",
+        'go test',
       ],
     },
   ],
   trigger: {
-    branch: [ "master" ],
+    branch: ['master'],
   },
 };
-local PipelineBuild(os="linux", arch="amd64") = {
-  kind: "pipeline",
-  name: os + "-" + arch,
+local PipelineBuild(os='linux', arch='amd64') = {
+  kind: 'pipeline',
+  name: os + '-' + arch,
   strigger: {
-    branch: [ "master" ],
+    branch: ['master'],
   },
   steps: [
     {
-      name: "build",
+      name: 'build-push',
       image: "golang",
-      pull: "always",
+      pull: 'always',
       environment: {
-        GO111MODULE: "on",
+        CGO_ENABLED: '0',
+        GO111MODULE: 'on',
       },
       commands: [
-        "GOOS=" + os + " " + "GOARCH=" + arch + " " + "go build -v -ldflags \"-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}\" -a -o release/" + os + "/" + arch + "/drone-discord",
+        'GOOS=' + os + ' ' + 'GOARCH=' + arch + ' ' +
+        'go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:8} -X main.build=${DRONE_BUILD_NUMBER}" -a \\\n         -o release/${DRONE_REPO_NAME}_' + os + '_' + arch,
       ],
       when: {
-        event: [ "push", "pull_request", "tag" ],
+        event: {
+          exclude: ['tag'],
+        },
       },
     },
     {
-      name: "publish",
-      image: "plugins/docker:" + os + "-" + arch,
-      pull: "always",
+      name: 'build',
+      image: 'golang',
+      pull: 'always',
+      environment: {
+        GO111MODULE: 'on',
+      },
+      commands: [
+        'GOOS=' + os + ' ' + 'GOARCH=' + arch + ' ' +
+        'go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}" -a \\\n         -o release/${DRONE_REPO_NAME}_' + os + '_' + arch,
+      ],
+      when: {
+        event: ['push', 'pull_request', 'tag'],
+      },
+    },
+    {
+      name: 'release',
+      image: 'plugins/github-release',
       settings: {
-        auto_tag: true,
-        auto_tag_suffix: os + "-" + arch,
-        dockerfile: "docker/Dockerfile." + os + "." + arch,
-        repo: "appleboy/drone-discord",
-        username: { "from_secret": "docker_username" },
-        password: { "from_secret": "docker_password" },
+        api_key: { from_secret: 'GITHUB_API_TOKEN' },
+        files: 'release/*',
       },
       when: {
-        event: [ "tag" ],
+        event: "tag",
+      },
+    },
+    {
+      name: 'publish',
+      image: 'plugins/docker:' + os + '-' + arch,
+      pull: 'always',
+      settings: {
+        auto_tag: true,
+        auto_tag_suffix: os + '-' + arch,
+        dockerfile: 'docker/Dockerfile.' + os + '.' + arch,
+        repo: '${DRONE_REPO}',
+        username: { from_secret: 'DOCKER_USERNAME' },
+        password: { from_secret: 'DOCKER_PASSWORD' },
+      },
+      when: {
+        event: ['tag'],
       },
     },
   ],
   depends_on: [
-    "testing",
+    'testing',
   ],
   trigger: {
-    branch: [ "master" ],
+    branch: ['master'],
   },
 };
 [
   PipelineTesting,
-  PipelineBuild("linux", "amd64"),
-  PipelineBuild("linux", "arm64"),
-  PipelineBuild("linux", "arm"),
+  PipelineBuild('linux', 'amd64'),
+  PipelineBuild('linux', 'arm64'),
+  PipelineBuild('linux', 'arm'),
 ]
