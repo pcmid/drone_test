@@ -29,7 +29,8 @@ steps:
         - sha256
 
     when:
-      branch: master
+      branch: 
+        - master
       event: tag
 
 volumes:
