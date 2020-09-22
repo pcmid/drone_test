@@ -29,6 +29,9 @@ local PipelineBuild(os="linux", arch="amd64") = {
     os: os,
     arch: arch,
   },
+  strigger: {
+    branch: [ "master" ],
+  },
   steps: [
     {
       name: "build",
@@ -42,7 +45,7 @@ local PipelineBuild(os="linux", arch="amd64") = {
         "go build -v -ldflags \"-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}\" -a -o release/" + os + "/" + arch + "/drone-discord",
       ],
       when: {
-        event: [ "tag" ],
+        event: [ "push", "pull_request", "tag" ],
       },
     },
     {
