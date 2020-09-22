@@ -38,6 +38,8 @@ steps:
     GO111MODULE: on
   when:
     event:
+    - push
+    - pull_request
     - tag
 
 - name: publish
@@ -82,6 +84,8 @@ steps:
     GO111MODULE: on
   when:
     event:
+    - push
+    - pull_request
     - tag
 
 - name: publish
@@ -126,6 +130,8 @@ steps:
     GO111MODULE: on
   when:
     event:
+    - push
+    - pull_request
     - tag
 
 - name: publish
