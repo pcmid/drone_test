@@ -39,7 +39,7 @@ local PipelineBuild(os='linux', arch='amd64') = {
       },
       commands: [
         'GOOS=' + os + ' ' + 'GOARCH=' + arch + ' ' +
-        'go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:8} -X main.build=${DRONE_BUILD_NUMBER}" -a \\\n         -o release/${DRONE_REPO_NAME}_' + os + '_' + arch,
+        'go build -v -ldflags "-X main.version=${DRONE_COMMIT_SHA:0:8} -X main.build=${DRONE_BUILD_NUMBER}" -a -o release/${DRONE_REPO_NAME}_' + os + '_' + arch,
       ],
       when: {
         event: {
@@ -56,7 +56,7 @@ local PipelineBuild(os='linux', arch='amd64') = {
       },
       commands: [
         'GOOS=' + os + ' ' + 'GOARCH=' + arch + ' ' +
-        'go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}" -a \\\n         -o release/${DRONE_REPO_NAME}_' + os + '_' + arch,
+        'go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}" -a -o release/${DRONE_REPO_NAME}_' + os + '_' + arch,
       ],
       when: {
         event: ['push', 'pull_request', 'tag'],
