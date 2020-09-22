@@ -25,10 +25,6 @@ local PipelineTesting = {
 local PipelineBuild(os="linux", arch="amd64") = {
   kind: "pipeline",
   name: os + "-" + arch,
-  platform: {
-    os: os,
-    arch: arch,
-  },
   strigger: {
     branch: [ "master" ],
   },
@@ -38,7 +34,6 @@ local PipelineBuild(os="linux", arch="amd64") = {
       image: "golang",
       pull: "always",
       environment: {
-        CGO_ENABLED: "0",
         GO111MODULE: "on",
       },
       commands: [

@@ -34,7 +34,6 @@ steps:
   commands:
   - GOOS=linux GOARCH=amd64 go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}" -a -o release/linux/amd64/drone-discord
   environment:
-    CGO_ENABLED: 0
     GO111MODULE: on
   when:
     event:
@@ -71,7 +70,7 @@ name: linux-arm64
 
 platform:
   os: linux
-  arch: arm64
+  arch: amd64
 
 steps:
 - name: build
@@ -80,7 +79,6 @@ steps:
   commands:
   - GOOS=linux GOARCH=arm64 go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}" -a -o release/linux/arm64/drone-discord
   environment:
-    CGO_ENABLED: 0
     GO111MODULE: on
   when:
     event:
@@ -117,7 +115,7 @@ name: linux-arm
 
 platform:
   os: linux
-  arch: arm
+  arch: amd64
 
 steps:
 - name: build
@@ -126,7 +124,6 @@ steps:
   commands:
   - GOOS=linux GOARCH=arm go build -v -ldflags "-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}" -a -o release/linux/arm/drone-discord
   environment:
-    CGO_ENABLED: 0
     GO111MODULE: on
   when:
     event:
