@@ -42,7 +42,7 @@ local PipelineBuild(os="linux", arch="amd64") = {
         GO111MODULE: "on",
       },
       commands: [
-        "go build -v -ldflags \"-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}\" -a -o release/" + os + "/" + arch + "/drone-discord",
+        "GOOS=" + os + " " + "GOARCH=" + arch + " " + "go build -v -ldflags \"-X main.version=${DRONE_TAG##v} -X main.build=${DRONE_BUILD_NUMBER}\" -a -o release/" + os + "/" + arch + "/drone-discord",
       ],
       when: {
         event: [ "push", "pull_request", "tag" ],
