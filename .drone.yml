@@ -1,0 +1,37 @@
+kind: pipeline
+name: default
+type: docker
+
+steps:
+  - name: test
+    image: golang
+    volumes:
+      - name: deps
+        path: /go
+    commands:
+      - go test
+
+  - name: build
+    image: golang
+    volumes:
+      - name: deps
+        path: /go
+    commands:
+      - go build
+
+  - name: publish
+    image: plugins/github-release
+    settings:
+      api_key: 
+      from_secret: GITHUB_API_KEY
+      files: dist/*
+      checksum:
+        - sha256
+
+    when:
+      branch: master
+      event: tag
+
+volumes:
+  - name: deps
+    temp: { }
