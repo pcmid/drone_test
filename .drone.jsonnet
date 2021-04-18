@@ -2,8 +2,8 @@ local PipelineTesting = {
   kind: 'pipeline',
   name: 'testing',
   platform: {
-    os: 'linux',
-    arch: 'amd64',
+    //os: 'linux',
+    //    arch: 'amd64',
   },
   steps: [
     {
@@ -31,7 +31,7 @@ local PipelineBuild(os='linux', arch='amd64') = {
   steps: [
     {
       name: 'build-push',
-      image: "golang",
+      image: 'golang',
       pull: 'always',
       environment: {
         CGO_ENABLED: '0',
@@ -70,7 +70,7 @@ local PipelineBuild(os='linux', arch='amd64') = {
         files: 'release/*',
       },
       when: {
-        event: "tag",
+        event: 'tag',
       },
     },
     {
