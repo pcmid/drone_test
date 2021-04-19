@@ -1,5 +1,6 @@
 ---
 kind: pipeline
+type: kubernetes
 name: testing
 
 platform:

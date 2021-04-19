@@ -1,9 +1,10 @@
 local PipelineTesting = {
   kind: 'pipeline',
+  type: 'kubernetes',
   name: 'testing',
   platform: {
-    //os: 'linux',
-    //    arch: 'amd64',
+    os: 'linux',
+    arch: 'amd64',
   },
   steps: [
     {
