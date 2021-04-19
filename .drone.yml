@@ -12,6 +12,7 @@ steps:
   pull: always
   image: golang
   commands:
+  - cat /etc/resolv.conf
   - go test
   environment:
     GO111MODULE: on
