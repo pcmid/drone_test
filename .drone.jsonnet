@@ -25,6 +25,7 @@ local PipelineTesting = {
 };
 local PipelineBuild(os='linux', arch='amd64') = {
   kind: 'pipeline',
+  type: 'kubernetes',
   name: os + '-' + arch,
   strigger: {
     branch: ['master'],

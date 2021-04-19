@@ -22,6 +22,7 @@ trigger:
 
 ---
 kind: pipeline
+type: kubernetes
 name: linux-amd64
 
 platform:
@@ -88,6 +89,7 @@ depends_on:
 
 ---
 kind: pipeline
+type: kubernetes
 name: linux-arm64
 
 platform:
@@ -154,6 +156,7 @@ depends_on:
 
 ---
 kind: pipeline
+type: kubernetes
 name: linux-arm
 
 platform:
