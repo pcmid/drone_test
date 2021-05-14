@@ -15,7 +15,6 @@ local PipelineTesting = {
         GO111MODULE: 'on',
       },
       commands: [
-        'cat /etc/resolv.conf',
         'go test',
       ],
     },
